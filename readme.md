@@ -1,0 +1,1 @@
+# Trabalho Prático 1 de Sistemas Operacionais 2025/2
