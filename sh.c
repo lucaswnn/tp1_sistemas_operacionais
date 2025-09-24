@@ -142,8 +142,15 @@ int fork1(void)
     /* END OF TASK 1 */
 }
 
+typedef enum
+{
+    LS
+} COMMAND_TYPES;
+
 void handle_simple_cmd(struct execcmd *ecmd)
 {
+    char *command = ecmd->argv[0];
+    // switch (){}
     /* Task 2: Implement the code below to execute simple commands. */
     fprintf(stderr, "exec not implemented\n");
     /* END OF TASK 2 */
@@ -185,13 +192,21 @@ int main(void)
         /* Task 5: Explain the purpose of the if statement below and correct the error message.
         Why is the current error message incorrect? Justify the new message. */
         /* Answer:
-
+        O bloco if é necessário para quando o usuário digita o comando "cd", que troca o diretório
+        corrente de trabalho de acordo com o argumento passado após o comando. Dessa forma,
+        o programa tenta a troca de diretório por meio da chamada de sistema chdir. Caso a
+        chamada falhe, o programa imprime certa mensagem. Além disso, o programa retira o último
+        caractere do buffer pois o último caractere é \n, o que a chamada chdir não suporta.
+        chdir é chamada usando como parâmetro buf + 3 para desprezar os caracteres "ch " do buffer.
+        A mensagem anterior estava incorreta pois não significa que um comando não existe, e sim
+        que não foi possível alterar o diretório, pois o mesmo não existe.
          */
         if (buf[0] == 'c' && buf[1] == 'd' && buf[2] == ' ')
         {
             buf[strlen(buf) - 1] = 0;
             if (chdir(buf + 3) < 0)
-                fprintf(stderr, "process does not exist\n");
+                fprintf(stderr, "Error: no such directory\n");
+
             continue;
         }
         /* END OF TASK 5 */
