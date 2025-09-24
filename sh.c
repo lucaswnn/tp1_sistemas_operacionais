@@ -144,7 +144,6 @@ int fork1(void)
 
 void handle_simple_cmd(struct execcmd *ecmd)
 {
-    char *command = ecmd->argv[0];
     /* Task 2: Implement the code below to execute simple commands. */
     fprintf(stderr, "exec not implemented\n");
     /* END OF TASK 2 */
