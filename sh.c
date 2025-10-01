@@ -147,14 +147,27 @@ void handle_simple_cmd(struct execcmd *ecmd)
     execvp(ecmd->argv[0], ecmd->argv);
 
     // se algum erro ocorrer
-    perror("handle_simple_cmd");
+    perror("execvp handle_simple_cmd");
 }
 
 void handle_redirection(struct redircmd *rcmd)
 {
-    /* Task 3: Implement the code below to handle input/output redirection. */
-    fprintf(stderr, "redir not implemented\n");
-    /* END OF TASK 3 */
+    struct execcmd *cmd = (struct execcmd *)rcmd->cmd;
+    int f = open(rcmd->file, rcmd->mode, 0644);
+    if (f < 0)
+    {
+        perror("open handle_redirection");
+        exit(-1);
+    }
+    if (dup2(f, rcmd->fd) < 0)
+    {
+        perror("dup2 handle_redirection");
+        exit(-1);
+    }
+    close(f);
+    execvp(cmd->argv[0], cmd->argv);
+
+    perror("execvp handle_redirection");
 }
 
 void handle_pipe(struct pipecmd *pcmd, int *p, int r)
