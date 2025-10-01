@@ -144,18 +144,10 @@ int fork1(void)
 
 void handle_simple_cmd(struct execcmd *ecmd)
 {
-    /* Task 2: Implement the code below to execute simple commands. */
-    char *command = ecmd->argv[0];
-    char base_path[] = "/usr/bin/";
-    int path_size = strlen(base_path) + strlen(command);
-    char *full_path = malloc(path_size + 1);
-    strcpy(full_path, base_path);
-    strcat(full_path, command);
-    execv(full_path, ecmd->argv);
+    execvp(ecmd->argv[0], ecmd->argv);
 
     // se algum erro ocorrer
-    fprintf(stderr, "error executing %s\n", command);
-    /* END OF TASK 2 */
+    perror("handle_simple_cmd");
 }
 
 void handle_redirection(struct redircmd *rcmd)
