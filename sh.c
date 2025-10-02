@@ -25,16 +25,36 @@ The group members declare that they have not copied material from the Internet
 Fill in the lines below with the name and email of the group members.
 Replace XX with the contribution of each group member in the development of the work.
 
-Name <email@ufmg.br> XX%
-Name <email@ufmg.br> XX%
+Name João Correia Costa, joaoccosta2015@gmail.com
 
 3. Solutions
 
-Briefly describe the solutions implemented for this project and justify their choices.
+Este projeto implementa um shell simplificado baseado no xv6 com as seguintes funcionalidades:
+
+- Task 1: Função fork1() já implementada que cria processos filhos usando fork() e trata erros adequadamente.
+
+- Task 3: Redirecionamento de entrada/saída implementado na função handle_redirection():
+  * Fecha o descritor de arquivo padrão (stdin=0 ou stdout=1)
+  * Abre o arquivo especificado com as permissões corretas usando open()
+  * Permite comandos como "ls > arquivo.txt" e "cat < arquivo.txt"
+
+- Task 4: Pipes implementados na função handle_pipe():
+  * Cria um pipe usando pipe()
+  * Fork dois processos filhos para cada lado do pipe
+  * Conecta stdout do primeiro processo ao stdin do segundo usando dup()
+  * Processo pai espera ambos os filhos terminarem
+  * Suporta múltiplos pipes em sequência
+
+- Task 5: Comando cd já implementado com tratamento de erro adequado.
+
+As escolhas de implementação seguem os padrões UNIX para manipulação de processos e descritores de arquivo, garantindo compatibilidade e robustez.
 
 4. Bibliographic references
 
-Add the bibliographic references here.
+- xv6: a simple, Unix-like teaching operating system (MIT)
+- Stevens, W. Richard. "Advanced Programming in the UNIX Environment"
+- Manual pages: fork(2), exec(3), pipe(2), open(2), close(2), dup(2)
+- MIT 6.828 Operating Systems Engineering course materials
 
 */
 
