@@ -153,14 +153,55 @@ void handle_simple_cmd(struct execcmd *ecmd)
 void handle_redirection(struct redircmd *rcmd)
 {
     /* Task 3: Implement the code below to handle input/output redirection. */
-    fprintf(stderr, "redir not implemented\n");
+    
+    // Fecha o descritor de arquivo padrão (0 para stdin, 1 para stdout)
+    close(rcmd->fd);
+    
+    // Abre o arquivo especificado com o modo apropriado
+    if (open(rcmd->file, rcmd->mode, 0644) < 0) {
+        perror("open");
+        exit(-1);
+    }
+    
     /* END OF TASK 3 */
 }
 
 void handle_pipe(struct pipecmd *pcmd, int *p, int r)
 {
     /* Task 4: Implement the code below to handle pipes. */
-    fprintf(stderr, "pipe not implemented\n");
+    
+    // Cria o pipe
+    if (pipe(p) < 0) {
+        perror("pipe");
+        exit(-1);
+    }
+    
+    // Fork para criar processo filho para o lado esquerdo do pipe
+    if (fork1() == 0) {
+        // Processo filho - executa lado esquerdo do pipe
+        close(1);        // Fecha stdout
+        dup(p[1]);       // Duplica write end do pipe para stdout
+        close(p[0]);     // Fecha read end do pipe
+        close(p[1]);     // Fecha write end do pipe (já duplicado)
+        runcmd(pcmd->left);
+    }
+    
+    // Fork para criar processo filho para o lado direito do pipe
+    if (fork1() == 0) {
+        // Processo filho - executa lado direito do pipe
+        close(0);        // Fecha stdin
+        dup(p[0]);       // Duplica read end do pipe para stdin
+        close(p[0]);     // Fecha read end do pipe (já duplicado)
+        close(p[1]);     // Fecha write end do pipe
+        runcmd(pcmd->right);
+    }
+    
+    // Processo pai - fecha ambos os ends do pipe e espera os filhos
+    close(p[0]);
+    close(p[1]);
+    wait(&r);
+    wait(&r);
+    
     /* END OF TASK 4 */
 }
 
