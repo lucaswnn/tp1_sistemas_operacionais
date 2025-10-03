@@ -59,6 +59,7 @@ Este projeto implementa um shell para o S.O. xv6 (simplificado) com as seguintes
   * Suporta múltiplos pipes em sequência
 
 - Task 5: Comando cd já implementado com tratamento de erro adequado.
+  * Para justificativa de mudanças, ver comentário logo abaixo da Task 5
 
 As escolhas de implementação foram feitas com base nos comandos vistos em aula,
   assim como a partir de outros comandos, sendo suas funcionalidades verificadas
