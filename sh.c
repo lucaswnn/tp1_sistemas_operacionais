@@ -26,7 +26,7 @@ Fill in the lines below with the name and email of the group members.
 Replace XX with the contribution of each group member in the development of the work.
 
 João Correia Costa, joao120201@ufmg.br, 50%
-Lucas Wiermann Cobo da Silva, lucaswnn@ufmg.br, 50 %
+Lucas Wiermann Cobo da Silva, lucaswnn@ufmg.br, 50%
 
 3. Solutions
 
