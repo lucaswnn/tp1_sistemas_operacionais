@@ -25,17 +25,30 @@ The group members declare that they have not copied material from the Internet
 Fill in the lines below with the name and email of the group members.
 Replace XX with the contribution of each group member in the development of the work.
 
-Name João Correia Costa, joaoccosta2015@gmail.com
+João Correia Costa, joao120201@ufmg.br, 50%
+Lucas Wiermann Cobo da Silva, lucaswnn@ufmg.br, 50 %
 
 3. Solutions
 
-Este projeto implementa um shell simplificado baseado no xv6 com as seguintes funcionalidades:
+Este projeto implementa um shell para o S.O. xv6 (simplificado) com as seguintes funcionalidades:
 
-- Task 1: Função fork1() já implementada que cria processos filhos usando fork() e trata erros adequadamente.
+- Task 1: Criação de processos filhos com a função fork1()
+  * Adapta a utilização da função fork() que sempre retorna
+  * Caso fork() falhe semanticamente, trata o erro adequadamente encerrando a execução.
+
+- Task 2: Execução de comandos sem redirection e sem pipe usando a função handle_simple_cmd():
+  * Utiliza a função execvp(), que recebe o nome do comando e os argumentos
+  * A estrutura de dados previamente implementada facilita a utilização de execvp, pois
+    já fornece todos os parâmetros necessários
+  * Em caso de erro, imprime-se o motivo para o usuário
 
 - Task 3: Redirecionamento de entrada/saída implementado na função handle_redirection():
-  * Fecha o descritor de arquivo padrão (stdin=0 ou stdout=1)
   * Abre o arquivo especificado com as permissões corretas usando open()
+  * O parâmetro 0644 significa permissão para leitura e escrita ampla
+  * Utiliza dup2 para direcionar os dados para o descritor de arquivo padrão (stdin=0 ou stdout=1)
+  * Fecha o descritor de arquivo padrão
+  * Na função runcmd, já chama-se o comando para executar, não sendo necessário chamar
+    em handle_redirection
   * Permite comandos como "ls > arquivo.txt" e "cat < arquivo.txt"
 
 - Task 4: Pipes implementados na função handle_pipe():
@@ -47,14 +60,18 @@ Este projeto implementa um shell simplificado baseado no xv6 com as seguintes fu
 
 - Task 5: Comando cd já implementado com tratamento de erro adequado.
 
-As escolhas de implementação seguem os padrões UNIX para manipulação de processos e descritores de arquivo, garantindo compatibilidade e robustez.
+As escolhas de implementação foram feitas com base nos comandos vistos em aula,
+  assim como a partir de outros comandos, sendo suas funcionalidades verificadas
+  nos manuais a partir do comando "man" e buscas na web.
+A implementação do parser e das estruturas de dados tornou a implementação das tasks
+  bem clara e limpa.
 
 4. Bibliographic references
 
 - xv6: a simple, Unix-like teaching operating system (MIT)
-- Stevens, W. Richard. "Advanced Programming in the UNIX Environment"
+- Notas de aula da disciplina Sistemas Operacionais, 2025
 - Manual pages: fork(2), exec(3), pipe(2), open(2), close(2), dup(2)
-- MIT 6.828 Operating Systems Engineering course materials
+- The Linux Programmer's Guide, disponível em: tldp.org/LDP/lpg.html
 
 */
 
@@ -164,64 +181,76 @@ int fork1(void)
 
 void handle_simple_cmd(struct execcmd *ecmd)
 {
+    /* Task 2: Implement the code below to execute simple commands. */
     execvp(ecmd->argv[0], ecmd->argv);
 
     // se algum erro ocorrer
     perror("handle_simple_cmd");
+
+    /* END OF TASK 2 */
 }
 
 void handle_redirection(struct redircmd *rcmd)
 {
     /* Task 3: Implement the code below to handle input/output redirection. */
-    
-    // Fecha o descritor de arquivo padrão (0 para stdin, 1 para stdout)
-    close(rcmd->fd);
-    
+
+    int f = open(rcmd->file, rcmd->mode, 0644);
+
     // Abre o arquivo especificado com o modo apropriado
-    if (open(rcmd->file, rcmd->mode, 0644) < 0) {
-        perror("open");
+    if (f < 0)
+    {
+        perror("open handle_redirection");
         exit(-1);
     }
-    
+    if (dup2(f, rcmd->fd) < 0)
+    {
+        perror("dup2 handle_redirection");
+        exit(-1);
+    }
+    close(f);
+
     /* END OF TASK 3 */
 }
 
 void handle_pipe(struct pipecmd *pcmd, int *p, int r)
 {
     /* Task 4: Implement the code below to handle pipes. */
-    
+
     // Cria o pipe
-    if (pipe(p) < 0) {
+    if (pipe(p) < 0)
+    {
         perror("pipe");
         exit(-1);
     }
-    
+
     // Fork para criar processo filho para o lado esquerdo do pipe
-    if (fork1() == 0) {
+    if (fork1() == 0)
+    {
         // Processo filho - executa lado esquerdo do pipe
-        close(1);        // Fecha stdout
-        dup(p[1]);       // Duplica write end do pipe para stdout
-        close(p[0]);     // Fecha read end do pipe
-        close(p[1]);     // Fecha write end do pipe (já duplicado)
+        close(1);    // Fecha stdout
+        dup(p[1]);   // Duplica write end do pipe para stdout
+        close(p[0]); // Fecha read end do pipe
+        close(p[1]); // Fecha write end do pipe (já duplicado)
         runcmd(pcmd->left);
     }
-    
+
     // Fork para criar processo filho para o lado direito do pipe
-    if (fork1() == 0) {
+    if (fork1() == 0)
+    {
         // Processo filho - executa lado direito do pipe
-        close(0);        // Fecha stdin
-        dup(p[0]);       // Duplica read end do pipe para stdin
-        close(p[0]);     // Fecha read end do pipe (já duplicado)
-        close(p[1]);     // Fecha write end do pipe
+        close(0);    // Fecha stdin
+        dup(p[0]);   // Duplica read end do pipe para stdin
+        close(p[0]); // Fecha read end do pipe (já duplicado)
+        close(p[1]); // Fecha write end do pipe
         runcmd(pcmd->right);
     }
-    
+
     // Processo pai - fecha ambos os ends do pipe e espera os filhos
     close(p[0]);
     close(p[1]);
     wait(&r);
     wait(&r);
-    
+
     /* END OF TASK 4 */
 }
 
